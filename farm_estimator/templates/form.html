@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Farm Estimator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e8f5e9;
+            margin: 0;
+            padding: 30px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 30px;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 15px;
+            display: block;
+            color: #33691e;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 2px solid #a5d6a7;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #66bb6a;
+        }
+        .submit-btn {
+            background-color: #43a047;
+            color: white;
+            padding: 12px;
+            font-size: 16px;
+            margin-top: 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .submit-btn:hover {
+            background-color: #388e3c;
+        }
+        .hidden {
+            display: none;
+        }
+        small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 0.8em;
+        }
+    </style>
+    <script>
+        function toggleLease() {
+            const landType = document.getElementById('land1').value;
+            const leaseCostGroup = document.getElementById('lease_cost_group');
+            if (landType === 'lease') {
+                leaseCostGroup.style.display = 'block';
+            } else {
+                leaseCostGroup.style.display = 'none';
+                document.getElementById('land2').value = 0;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Farm Estimator Form</h2>
+        <form method="POST" action="/result">
+            
+            <!-- Farmer Info -->
+            <label>Name:</label>
+            <input type="text" name="name" required>
+
+            <label>Age:</label>
+            <input type="number" name="age" required>
+
+            <label>Village:</label>
+            <input type="text" name="village" required>
+
+            <!-- Land Info -->
+            <label>Land Type:</label>
+            <select name="land1" id="land1" onchange="toggleLease()" required>
+                <option value="">-- Select --</option>
+                <option value="own">Own</option>
+                <option value="lease">Lease</option>
+            </select>
+
+            <div id="lease_cost_group" class="hidden">
+                <label>Lease Cost (₹):</label>
+                <input type="number" name="land2" id="land2" step="any">
+            </div>
+
+            <label>Land Size:</label>
+            <input type="number" name="land_size" step="any" required>
+                        <label>Land Unit:</label>
+            <select name="land_unit" required>
+                <option value="acre">Acre</option>
+                <option value="bigha">Bigha</option>
+                        </select>
+<small>Select either acre or bigha</small>
+
+            <label>Budget (₹):</label>
+            <input type="number" name="budget" step="any" required>
+<small>This is the total amount you plan to invest. It will be used to calculate ROI(Return on Investment).</small>
+
+
+            <!-- Crop Info -->
+            <label>Crop:</label>
+            <select name="crop" required>
+                <option value="">-- Select Crop --</option>
+                <option value="rice">Rice</option>
+                <option value="wheat">Wheat</option>
+                <option value="brinjal">Brinjal</option>
+                <option value="potato">Potato</option>
+                <option value="mustard">Mustard</option>
+                <option value="onion">Onion</option>
+                <option value="strawberry">Strawberry</option>
+                <option value="tomato">Tomato</option>
+            </select>
+
+            <label>Farming Type:</label>
+            <select name="type" required>
+                <option value="">-- Select --</option>
+                <option value="conventional">Conventional</option>
+                <option value="organic">Organic</option>
+            </select>
+
+            <label>Do you use chemicals?</label>
+            <select name="chemical" required>
+                <option value="">-- Select --</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+
+            <label>Expected Selling Price (₹/quintal):</label>
+            <input type="number" name="selling_price" step="any" required>
+
+            <label>Input Mode:</label>
+<select name="mode" id="mode" onchange="togglelease()"required>
+
+    <option value="acre">Quintals / Acre</option>
+    <option value="bigha">Mun / Bigha</option>
+</select>
+
+<label>Expected Yield (quintals / acre):</label>
+<input type="number" name="expected_yield" step="any">
+<small>Only fill this if you selected "Quintals / Acre" above</small>
+
+<label>Expected Yield (mun / bigha):</label>
+<input type="number" name="total_mun" step="any">
+<small>Only fill this if you selected "Mun / Bigha" above</small>
+
+
+
+
+
+            <button type="submit" class="submit-btn">Estimate</button>
+        </form>
+    </div>
+</body>
+</html>
+
+
+
+

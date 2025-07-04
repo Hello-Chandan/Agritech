@@ -1,0 +1,154 @@
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+
+# Crop data with cost estimates (per bigha)
+crop_data = {
+    "rice": {"seed_cost": 2000, "labor_cost": 5000, "days": 150, "chemical_cost": 3000, "organic_cost": 4000, "selling_price": 2500, "yield_per_acre": 20},
+    "wheat": {"seed_cost": 1500, "labor_cost": 4000, "days": 90, "chemical_cost": 2500, "organic_cost": 3500, "selling_price": 2500, "yield_per_acre": 15},
+    "brinjal": {"seed_cost": 3000, "labor_cost": 6000, "days": 150, "chemical_cost": 4000, "organic_cost": 5000, "selling_price": 2500, "yield_per_acre": 110},
+    "potato": {"seed_cost": 2500, "labor_cost": 5500, "days": 120, "chemical_cost": 3500, "organic_cost": 4500, "selling_price": 2500, "yield_per_acre": 80},
+    "mustard": {"seed_cost": 1800, "labor_cost": 3500, "days": 80, "chemical_cost": 2000, "organic_cost": 3000, "selling_price": 2500, "yield_per_acre": 8},
+    "onion": {"seed_cost": 2200, "labor_cost": 5000, "days": 110, "chemical_cost": 3000, "organic_cost": 4000, "selling_price": 2500, "yield_per_acre": 100},
+    "strawberry": {"seed_cost": 5000, "labor_cost": 8000, "days": 180, "chemical_cost": 6000, "organic_cost": 7000, "selling_price": 2500, "yield_per_acre": 25},
+    "tomato": {"seed_cost": 2500, "labor_cost": 8000, "days": 110, "chemical_cost": 4000, "organic_cost": 8000, "selling_price": 2500, "yield_per_acre": 250}
+}
+
+chemicals = {
+    "rice": {
+        "conventional": ["Urea", "DAP", "MOP", "Zinc Sulfate"],
+        "organic": ["Vermicompost", "Neem Cake", "Jeevamrutha"]
+    },
+    "wheat": {
+        "conventional": ["DAP", "Urea", "Potash", "Sulfur"],
+        "organic": ["Farmyard Manure", "Panchagavya", "Rock Phosphate"]
+    },
+    "brinjal": {
+        "conventional": ["NPK", "Calcium Nitrate", "Micronutrient Mix", "Imidacloprid"],
+        "organic": ["Compost", "Fish Amino Acid", "Trichoderma"]
+    },
+    "potato": {
+        "conventional": ["NPK", "Magnesium Sulfate", "Chlorpyriphos", "Mancozeb"],
+        "organic": ["Green Manure", "Wood Ash", "Bordeaux Mixture"]
+    },
+    "mustard": {
+        "conventional": ["SSP", "Urea", "Boron", "Lambda-cyhalothrin"],
+        "organic": ["Mustard Cake", "Beejamrutha", "Dasagavya"]
+    },
+    "onion": {
+        "conventional": ["NPK", "Ammonium Sulfate", "Zinc", "Chlorothalonil"],
+        "organic": ["Onion Peels Compost", "Garlic Extract", "Cow Urine"]
+    },
+    "strawberry": {
+        "conventional": ["NPK", "Calcium Nitrate", "Micronutrients", "Abamectin"],
+        "organic": ["Straw Mulch", "Compost Tea", "Seaweed Extract"]
+    },
+    "tomato": {
+        "conventional": ["NPK", "Calcium Nitrate", "Micronutrients", "Emamectin Benzoate"],
+        "organic": ["Tomato Waste Compost", "Panchagavya", "Neem Oil"]
+    }
+}
+
+@app.route('/')
+def form():
+    return render_template('form.html')
+
+@app.route('/result', methods=['POST'])
+def result():
+    mode = request.form.get('mode', 'acre')  # Get selected mode: 'bigha' or 'acre'
+
+    try:
+        name = request.form['name']
+        age = request.form['age']
+        village = request.form['village']
+        land_type = request.form['land1']
+        lease_cost = float(request.form.get('land2', 0))
+        land_size = float(request.form['land_size'])
+        land_unit = request.form['land_unit']
+        budget = float(request.form['budget'])
+        crop = request.form['crop']
+        chemical_use = request.form['chemical']
+        farming_type = request.form['type']
+        selling_price = float(request.form['selling_price'])
+
+        # Convert land to acres
+        conversion_factor = 0.619 if land_unit == 'bigha' else 1
+        land_size_acres = land_size * conversion_factor
+
+        # Yield calculation based on selected mode
+        if mode == 'bigha':
+            total_mun = float(request.form['total_mun'])
+            yield_qtl = total_mun * 0.4  # 1 mun = 0.4 quintal
+            yield_per_acre = yield_qtl / land_size_acres if land_size_acres else 0
+        else:
+            yield_per_acre = float(request.form['expected_yield'])
+            yield_qtl = yield_per_acre * land_size_acres
+
+        expected_yield = yield_qtl
+        expected_revenue = selling_price * expected_yield
+
+        crop_info = crop_data[crop]
+
+        seed_cost = crop_info['seed_cost'] * land_size_acres
+        labor_cost = crop_info['labor_cost'] * land_size_acres
+        days_needed = crop_info['days']
+
+        if chemical_use == 'yes':
+            chemical_name = ', '.join(chemicals[crop]['conventional'])
+            chemical_cost = crop_info['chemical_cost'] * land_size_acres
+        else:
+            chemical_name = 'None'
+            chemical_cost = 0
+
+        if farming_type == 'organic':
+            additional_cost = crop_info['organic_cost'] * land_size_acres
+        else:
+            additional_cost = 0
+
+        total_cost = seed_cost + labor_cost + chemical_cost + additional_cost + lease_cost
+
+        # Budget warning check
+        if budget < total_cost:
+            budget_warning = f"⚠️ Your budget is ₹{budget:,.2f}, but the estimated cost is ₹{total_cost:,.2f}. Consider reducing land area, switching crop, or finding support."
+        else:
+            budget_warning = ""
+
+        profit = expected_revenue - total_cost
+        profit_margin = (profit / expected_revenue) * 100 if expected_revenue > 0 else 0
+        roi = expected_revenue - budget
+        result_data = {
+            'name': name,
+            'age': age,
+            'village': village,
+            'land_type': land_type.capitalize(),
+            'lease_cost': f"₹{lease_cost:,.2f}",
+            'land_size': land_size,
+            'land_unit': land_unit,
+            'land_size_acres': f"{land_size_acres:.2f}",
+            'budget': f"₹{budget:,.2f}",
+            'crop': crop.capitalize(),
+            'chemical_use': chemical_use.capitalize(),
+            'chemical_name': chemical_name,
+            'chemical_cost': f"₹{chemical_cost:,.2f}" if chemical_cost else "None",
+            'farming_type': farming_type.capitalize(),
+            'seed_cost': f"₹{seed_cost:,.2f}",
+            'labor_cost': f"₹{labor_cost:,.2f}",
+            'days_needed': days_needed,
+            'additional_cost': f"₹{additional_cost:,.2f}" if additional_cost else "None",
+            'total_cost': f"₹{total_cost:,.2f}",
+            'expected_yield': f"{expected_yield:.2f}",
+            'expected_revenue': f"₹{expected_revenue:,.2f}",
+            'selling_price': f"₹{selling_price:,.2f}",
+            'yield_per_acre': yield_per_acre,
+            'profit': f"₹{profit:,.2f}",
+            'profit_margin': f"{profit_margin:.2f}",
+            'roi': f"{roi:,.2f}"
+        }
+
+        return render_template('result.html', data=result_data, budget_warning=budget_warning)
+
+    except Exception as e:
+        return f"An error occurred: {str(e)}", 400
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Farm Estimation Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .result-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-radius: 5px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dashed #ccc;
+        }
+        .label {
+            font-weight: bold;
+        }
+        .highlight {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Farm Estimation Results</h2>
+
+        <div class="result-section">
+            <h3>Farmer Information</h3>
+            <div class="result-item"><span class="label">Name:</span> {{ data.name }}</div>
+            <div class="result-item"><span class="label">Age:</span> {{ data.age }}</div>
+            <div class="result-item"><span class="label">Village:</span> {{ data.village }}</div>
+        </div>
+
+        <div class="result-section">
+            <h3>Land Information</h3>
+            <div class="result-item"><span class="label">Land Type:</span> {{ data.land_type }}</div>
+            <div class="result-item"><span class="label">Lease Cost:</span> {{ data.lease_cost }}</div>
+            <div class="result-item"><span class="label">Land Size:</span> {{ data.land_size }} {{ data.land_unit }} ({{ data.land_size_acres }} acres)</div>
+            <div class="result-item"><span class="label">Budget:</span> {{ data.budget }}</div>
+        </div>
+
+        <div class="result-section">
+            <h3>Crop Information</h3>
+            <div class="result-item"><span class="label">Crop:</span> {{ data.crop }}</div>
+            <div class="result-item"><span class="label">Farming Type:</span> {{ data.farming_type }}</div>
+            <div class="result-item"><span class="label">Uses Chemicals:</span> {{ data.chemical_use }}</div>
+            <div class="result-item"><span class="label">Chemicals:</span> {{ data.chemical_name }}</div>
+            <div class="result-item"><span class="label">Duration:</span> {{ data.days_needed }} days</div>
+        </div>
+
+        <div class="result-section">
+            <h3>Production Estimate</h3>
+            <div class="result-item"><span class="label">Expected Yield:</span> {{ data.expected_yield }} quintals</div>
+            <div class="result-item"><span class="label">Expected Revenue:</span> {{ data.expected_revenue }}</div>
+        
+
+        <div class="result-section">
+            <h3>Cost Breakdown</h3>
+            <div class="result-item"><span class="label">Seed Cost:</span> {{ data.seed_cost }}</div>
+            <div class="result-item"><span class="label">Labor Cost:</span> {{ data.labor_cost }}</div>
+            <div class="result-item"><span class="label">Chemical Cost:</span> {{ data.chemical_cost }}</div>
+            <div class="result-item"><span class="label">Organic Cost:</span> {{ data.additional_cost }}</div>
+            <div class="result-item"><span class="label">Lease cost:</span> {{ data.lease_cost }}</div>
+            <div class="result-item"><span class="label">Total Cost:</span> {{ data.total_cost }}</div>
+        </div>
+
+</div>
+{% if budget_warning %}
+  <div style="background-color: #fff3cd; color: #856404; padding: 10px 15px; border-left: 5px solid #ffc107; margin-bottom: 20px; border-radius: 5px;">
+    {{ budget_warning }}
+  </div>
+{% endif %}
+
+
+        <div class="result-section highlight">
+            <div class="result-item"><span class="label">Profit / Loss:</span> {{ data.profit }}</div>
+            <div class="result-item"><span class="label">ROI (Return - Budget):</span> ₹{{ data.roi }}</div>
+            <div class="result-item"><span class="label">Profit Margin:</span> {{ data.profit_margin }}%</div>
+
+        </div>
+
+        <div style="text-align:center; margin-top: 20px;">
+            <a href="/" style="padding: 10px 20px; background-color: #3498db; color: white; border-radius: 4px; text-decoration: none;">Back to Form</a>
+        </div>
+    </div>
+</body>
+</html>
