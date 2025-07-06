@@ -2,15 +2,15 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# Crop data with cost estimates (per bigha)
+# Crop data with cost estimates (per acre for Assam)
 crop_data = {
-    "rice": {"seed_cost": 2000, "labor_cost": 5000, "days": 150, "chemical_cost": 3000, "organic_cost": 4000, "selling_price": 2500, "yield_per_acre": 20},
-    "wheat": {"seed_cost": 1500, "labor_cost": 4000, "days": 90, "chemical_cost": 2500, "organic_cost": 3500, "selling_price": 2500, "yield_per_acre": 15},
-    "brinjal": {"seed_cost": 3000, "labor_cost": 6000, "days": 150, "chemical_cost": 4000, "organic_cost": 5000, "selling_price": 2500, "yield_per_acre": 110},
-    "potato": {"seed_cost": 2500, "labor_cost": 5500, "days": 120, "chemical_cost": 3500, "organic_cost": 4500, "selling_price": 2500, "yield_per_acre": 80},
-    "mustard": {"seed_cost": 1800, "labor_cost": 3500, "days": 80, "chemical_cost": 2000, "organic_cost": 3000, "selling_price": 2500, "yield_per_acre": 8},
-    "onion": {"seed_cost": 2200, "labor_cost": 5000, "days": 110, "chemical_cost": 3000, "organic_cost": 4000, "selling_price": 2500, "yield_per_acre": 100},
-    "strawberry": {"seed_cost": 5000, "labor_cost": 8000, "days": 180, "chemical_cost": 6000, "organic_cost": 7000, "selling_price": 2500, "yield_per_acre": 25},
+    "rice": {"seed_cost": 2000, "labor_cost": 5000, "days": 150, "chemical_cost": 3000, "organic_cost": 4000, "selling_price": 2000, "yield_per_acre": 30},
+    "wheat": {"seed_cost": 1500, "labor_cost": 4000, "days": 90, "chemical_cost": 2500, "organic_cost": 3500, "selling_price": 2100, "yield_per_acre": 15},
+    "brinjal": {"seed_cost": 3000, "labor_cost": 6000, "days": 150, "chemical_cost": 4000, "organic_cost": 5000, "selling_price": 2000, "yield_per_acre": 110},
+    "potato": {"seed_cost": 2500, "labor_cost": 5500, "days": 120, "chemical_cost": 3500, "organic_cost": 4500, "selling_price": 2400, "yield_per_acre": 80},
+    "mustard": {"seed_cost": 1800, "labor_cost": 3500, "days": 80, "chemical_cost": 2000, "organic_cost": 3000, "selling_price": 2300, "yield_per_acre": 8},
+    "onion": {"seed_cost": 2200, "labor_cost": 5000, "days": 110, "chemical_cost": 3000, "organic_cost": 4000, "selling_price": 2300, "yield_per_acre": 100},
+    "strawberry": {"seed_cost": 5000, "labor_cost": 8000, "days": 180, "chemical_cost": 6000, "organic_cost": 7000, "selling_price": 2400, "yield_per_acre": 25},
     "tomato": {"seed_cost": 2500, "labor_cost": 8000, "days": 110, "chemical_cost": 4000, "organic_cost": 8000, "selling_price": 2500, "yield_per_acre": 250}
 }
 
@@ -55,7 +55,7 @@ def form():
 
 @app.route('/result', methods=['POST'])
 def result():
-    mode = request.form.get('mode', 'acre')  # Get selected mode: 'bigha' or 'acre'
+    mode = request.form.get('mode', 'acre')
 
     try:
         name = request.form['name']
@@ -71,22 +71,17 @@ def result():
         farming_type = request.form['type']
         selling_price = float(request.form['selling_price'])
 
-        # Convert land to acres
-        conversion_factor = 0.619 if land_unit == 'bigha' else 1
+        conversion_factor = 0.33 if land_unit == 'bigha' else 1
         land_size_acres = land_size * conversion_factor
 
-        # Yield calculation based on selected mode
         if mode == 'bigha':
             total_mun = float(request.form['total_mun'])
-            yield_qtl = total_mun * 0.4  # 1 mun = 0.4 quintal
-            yield_per_acre = yield_qtl / land_size_acres if land_size_acres else 0
+            expected_yield = total_mun * land_size * 0.4 # 1 mun = 0.4 quintal
         else:
             yield_per_acre = float(request.form['expected_yield'])
-            yield_qtl = yield_per_acre * land_size_acres
+            expected_yield = yield_per_acre * land_size_acres
 
-        expected_yield = yield_qtl
         expected_revenue = selling_price * expected_yield
-
         crop_info = crop_data[crop]
 
         seed_cost = crop_info['seed_cost'] * land_size_acres
@@ -100,22 +95,24 @@ def result():
             chemical_name = 'None'
             chemical_cost = 0
 
+        # Updated Organic Cost Calculation (realistic for bigha)
         if farming_type == 'organic':
-            additional_cost = crop_info['organic_cost'] * land_size_acres
+            if land_unit == 'bigha':
+                organic_cost_per_bigha = crop_info['organic_cost'] * 0.33  # Convert from per acre to per bigha
+                additional_cost = organic_cost_per_bigha * land_size
+            else:
+                additional_cost = crop_info['organic_cost'] * land_size_acres
         else:
             additional_cost = 0
 
         total_cost = seed_cost + labor_cost + chemical_cost + additional_cost + lease_cost
 
-        # Budget warning check
-        if budget < total_cost:
-            budget_warning = f"⚠️ Your budget is ₹{budget:,.2f}, but the estimated cost is ₹{total_cost:,.2f}. Consider reducing land area, switching crop, or finding support."
-        else:
-            budget_warning = ""
+        budget_warning = f"⚠️ Your budget is ₹{budget:,.2f}, but the estimated cost is ₹{total_cost:,.2f}." if budget < total_cost else ""
 
         profit = expected_revenue - total_cost
         profit_margin = (profit / expected_revenue) * 100 if expected_revenue > 0 else 0
-        roi = expected_revenue - budget
+        roi_percentage = (profit / total_cost) * 100 if total_cost > 0 else 0
+        roi_in_rupees = expected_revenue - budget
         result_data = {
             'name': name,
             'age': age,
@@ -136,13 +133,15 @@ def result():
             'days_needed': days_needed,
             'additional_cost': f"₹{additional_cost:,.2f}" if additional_cost else "None",
             'total_cost': f"₹{total_cost:,.2f}",
-            'expected_yield': f"{expected_yield:.2f}",
+            'expected_yield': f"{expected_yield:.2f} quintals of {crop}",
+            'yield_per_acre': f"{expected_yield / land_size_acres:.2f} quintals/acre" if land_size_acres else "N/A",
             'expected_revenue': f"₹{expected_revenue:,.2f}",
-            'selling_price': f"₹{selling_price:,.2f}",
-            'yield_per_acre': yield_per_acre,
+            'selling_price': f"₹{selling_price:,.2f} per quintal of {crop}",
             'profit': f"₹{profit:,.2f}",
-            'profit_margin': f"{profit_margin:.2f}",
-            'roi': f"{roi:,.2f}"
+            'profit_margin': f"{profit_margin:.2f}%",
+            'roi_percentage': f"{roi_percentage:.2f}%",
+            'roi_in_rupees': f"₹{roi_in_rupees:,.2f}"
+
         }
 
         return render_template('result.html', data=result_data, budget_warning=budget_warning)
