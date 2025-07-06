@@ -10,42 +10,74 @@
             padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 850px;
             margin: 0 auto;
             background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
         }
         h2 {
             text-align: center;
             color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        h3 {
+            color: #1565c0;
+            margin-top: 10px;
         }
         .result-section {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             padding: 15px;
             background-color: #e3f2fd;
-            border-radius: 5px;
+            border-radius: 6px;
         }
         .result-item {
             display: flex;
             justify-content: space-between;
             padding: 6px 0;
-            border-bottom: 1px dashed #ccc;
+            border-bottom: 1px dashed #bbb;
         }
         .label {
             font-weight: bold;
         }
         .highlight {
-            font-size: 1.1em;
+            background-color: #f1f8e9;
             font-weight: bold;
-            color: green;
+            font-size: 1.05em;
+            border-left: 4px solid green;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 12px 16px;
+            border-left: 6px solid #ffc107;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-btn:hover {
+            background-color: #1e88e5;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Farm Estimation Results</h2>
+
+        {% if budget_warning %}
+        <div class="warning-box">
+            {{ budget_warning }}
+        </div>
+        {% endif %}
 
         <div class="result-section">
             <h3>Farmer Information</h3>
@@ -73,9 +105,11 @@
 
         <div class="result-section">
             <h3>Production Estimate</h3>
-            <div class="result-item"><span class="label">Expected Yield:</span> {{ data.expected_yield }} quintals</div>
+            <div class="result-item"><span class="label">Expected Yield:</span> {{ data.expected_yield }}</div>
+            <div class="result-item"><span class="label">Yield per Acre:</span> {{ data.yield_per_acre }}</div>
+            <div class="result-item"><span class="label">Selling Price:</span> {{ data.selling_price }}</div>
             <div class="result-item"><span class="label">Expected Revenue:</span> {{ data.expected_revenue }}</div>
-        
+        </div>
 
         <div class="result-section">
             <h3>Cost Breakdown</h3>
@@ -83,27 +117,17 @@
             <div class="result-item"><span class="label">Labor Cost:</span> {{ data.labor_cost }}</div>
             <div class="result-item"><span class="label">Chemical Cost:</span> {{ data.chemical_cost }}</div>
             <div class="result-item"><span class="label">Organic Cost:</span> {{ data.additional_cost }}</div>
-            <div class="result-item"><span class="label">Lease cost:</span> {{ data.lease_cost }}</div>
             <div class="result-item"><span class="label">Total Cost:</span> {{ data.total_cost }}</div>
         </div>
 
-</div>
-{% if budget_warning %}
-  <div style="background-color: #fff3cd; color: #856404; padding: 10px 15px; border-left: 5px solid #ffc107; margin-bottom: 20px; border-radius: 5px;">
-    {{ budget_warning }}
-  </div>
-{% endif %}
-
-
         <div class="result-section highlight">
-            <div class="result-item"><span class="label">Profit / Loss:</span> {{ data.profit }}</div>
-            <div class="result-item"><span class="label">ROI (Return - Budget):</span> ₹{{ data.roi }}</div>
-            <div class="result-item"><span class="label">Profit Margin:</span> {{ data.profit_margin }}%</div>
+    <div class="result-item"><span class="label">Profit / Loss:</span> {{ data.profit }}</div>
+    <div class="result-item"><span class="label">ROI (Return on Investment):</span> {{ data.roi_percentage }} ({{ data.roi_in_rupees }})</div>
+    <div class="result-item"><span class="label">Profit Margin:</span> {{ data.profit_margin }}</div>
+</div>
 
-        </div>
-
-        <div style="text-align:center; margin-top: 20px;">
-            <a href="/" style="padding: 10px 20px; background-color: #3498db; color: white; border-radius: 4px; text-decoration: none;">Back to Form</a>
+        <div style="text-align:center;">
+            <a href="/" class="back-btn">← Back to Form</a>
         </div>
     </div>
 </body>
