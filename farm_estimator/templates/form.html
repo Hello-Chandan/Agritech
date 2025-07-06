@@ -64,36 +64,24 @@
             font-size: 0.8em;
         }
     </style>
-    <script>
-        function toggleLease() {
-            const landType = document.getElementById('land1').value;
-            const leaseCostGroup = document.getElementById('lease_cost_group');
-            if (landType === 'lease') {
-                leaseCostGroup.style.display = 'block';
-            } else {
-                leaseCostGroup.style.display = 'none';
-                document.getElementById('land2').value = 0;
-            }
-        }
-    </script>
 </head>
 <body>
     <div class="container">
         <h2>Farm Estimator Form</h2>
         <form method="POST" action="/result">
-            
+
             <!-- Farmer Info -->
-            <label>Name:</label>
-            <input type="text" name="name" required>
+            <label for="name">Name:</label>
+            <input type="text" name="name" id="name" required>
 
-            <label>Age:</label>
-            <input type="number" name="age" required>
+            <label for="age">Age:</label>
+            <input type="number" name="age" id="age" required>
 
-            <label>Village:</label>
-            <input type="text" name="village" required>
+            <label for="village">Village:</label>
+            <input type="text" name="village" id="village" required>
 
             <!-- Land Info -->
-            <label>Land Type:</label>
+            <label for="land1">Land Type:</label>
             <select name="land1" id="land1" onchange="toggleLease()" required>
                 <option value="">-- Select --</option>
                 <option value="own">Own</option>
@@ -101,29 +89,29 @@
             </select>
 
             <div id="lease_cost_group" class="hidden">
-                <label>Lease Cost (₹):</label>
+                <label for="land2">Lease Cost (₹):</label>
                 <input type="number" name="land2" id="land2" step="any">
             </div>
 
-            <label>Land Size:</label>
-            <input type="number" name="land_size" step="any" required>
-                        <label>Land Unit:</label>
-            <select name="land_unit" required>
+            <label for="land_size">Land Size:</label>
+            <input type="number" name="land_size" id="land_size" step="any" required>
+
+            <label for="land_unit">Land Unit:</label>
+            <select name="land_unit" id="land_unit" required>
                 <option value="acre">Acre</option>
                 <option value="bigha">Bigha</option>
-                        </select>
-<small>Select either acre or bigha</small>
+            </select>
+            <small>Example: 1 acre ≈ 3 bigha in Assam</small>
 
-            <label>Budget (₹):</label>
-            <input type="number" name="budget" step="any" required>
-<small>This is the total amount you plan to invest. It will be used to calculate ROI(Return on Investment).</small>
-
+            <label for="budget">Budget (₹):</label>
+            <input type="number" name="budget" id="budget" step="any" required>
+            <small>This is the total amount you plan to invest.</small>
 
             <!-- Crop Info -->
-            <label>Crop:</label>
-            <select name="crop" required>
+            <label for="crop">Crop:</label>
+            <select name="crop" id="crop" required>
                 <option value="">-- Select Crop --</option>
-                <option value="rice">Rice</option>
+                <option value="rice">Rice (Paddy)</option>
                 <option value="wheat">Wheat</option>
                 <option value="brinjal">Brinjal</option>
                 <option value="potato">Potato</option>
@@ -133,48 +121,65 @@
                 <option value="tomato">Tomato</option>
             </select>
 
-            <label>Farming Type:</label>
-            <select name="type" required>
+            <label for="type">Farming Type:</label>
+            <select name="type" id="type" required>
                 <option value="">-- Select --</option>
                 <option value="conventional">Conventional</option>
                 <option value="organic">Organic</option>
             </select>
 
-            <label>Do you use chemicals?</label>
-            <select name="chemical" required>
+            <label for="chemical">Do you use chemicals?</label>
+            <select name="chemical" id="chemical" required>
                 <option value="">-- Select --</option>
                 <option value="yes">Yes</option>
                 <option value="no">No</option>
             </select>
 
-            <label>Expected Selling Price (₹/quintal):</label>
-            <input type="number" name="selling_price" step="any" required>
+            <label for="selling_price">Expected Selling Price (₹/quintal):</label>
+            <input type="number" name="selling_price" id="selling_price" step="any" required>
 
-            <label>Input Mode:</label>
-<select name="mode" id="mode" onchange="togglelease()"required>
+            <label for="mode">Input Mode:</label>
+            <select name="mode" id="mode" onchange="toggleYieldFields()" required>
+                <option value="acre">Quintals / Acre</option>
+                <option value="bigha">Mun / Bigha</option>
+            </select>
 
-    <option value="acre">Quintals / Acre</option>
-    <option value="bigha">Mun / Bigha</option>
-</select>
+            <div id="acre_input">
+                <label for="expected_yield">Expected Yield (quintals / acre):</label>
+                <input type="number" name="expected_yield" id="expected_yield" step="any">
+                <small>Only fill this if you selected "Quintals / Acre"</small>
+            </div>
 
-<label>Expected Yield (quintals / acre):</label>
-<input type="number" name="expected_yield" step="any">
-<small>Only fill this if you selected "Quintals / Acre" above</small>
-
-<label>Expected Yield (mun / bigha):</label>
-<input type="number" name="total_mun" step="any">
-<small>Only fill this if you selected "Mun / Bigha" above</small>
-
-
-
-
+            <div id="bigha_input" class="hidden">
+                <label for="total_mun">Expected Yield (mun / bigha):</label>
+                <input type="number" name="total_mun" id="total_mun" step="any">
+                <small>Only fill this if you selected "Mun / Bigha"</small>
+            </div>
 
             <button type="submit" class="submit-btn">Estimate</button>
         </form>
     </div>
+
+    <script>
+        function toggleLease() {
+            const landType = document.getElementById('land1').value;
+            const leaseCostGroup = document.getElementById('lease_cost_group');
+            leaseCostGroup.classList.toggle('hidden', landType !== 'lease');
+            if (landType !== 'lease') {
+                document.getElementById('land2').value = 0;
+            }
+        }
+
+        function toggleYieldFields() {
+            const mode = document.getElementById("mode").value;
+            document.getElementById("acre_input").classList.toggle("hidden", mode !== "acre");
+            document.getElementById("bigha_input").classList.toggle("hidden", mode !== "bigha");
+        }
+
+        window.onload = function () {
+            toggleLease();
+            toggleYieldFields();
+        };
+    </script>
 </body>
 </html>
-
-
-
-
