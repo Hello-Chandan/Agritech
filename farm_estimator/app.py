@@ -11,7 +11,8 @@ crop_data = {
     "mustard": {"seed_cost": 1800, "labor_cost": 3500, "days": 80, "chemical_cost": 2000, "organic_cost": 3000, "selling_price": 2300, "yield_per_acre": 80},
     "onion": {"seed_cost": 2200, "labor_cost": 5000, "days": 110, "chemical_cost": 3000, "organic_cost": 4000, "selling_price": 2300, "yield_per_acre": 100},
     "strawberry": {"seed_cost": 5000, "labor_cost": 8000, "days": 180, "chemical_cost": 6000, "organic_cost": 7000, "selling_price": 2400, "yield_per_acre": 35},
-    "tomato": {"seed_cost": 2500, "labor_cost": 8000, "days": 110, "chemical_cost": 4000, "organic_cost": 8000, "selling_price": 2500, "yield_per_acre": 200}
+    "tomato": {"seed_cost": 2500, "labor_cost": 8000, "days": 110, "chemical_cost": 4000, "organic_cost": 8000, "selling_price": 2500, "yield_per_acre": 200},
+    "maize": {"seed_cost": 1800, "labor_cost": 4000, "days": 120, "chemical_cost": 2200, "organic_cost": 3000, "selling_price": 1700, "yield_per_acre": 28}
 }
 
 chemicals = {
@@ -46,11 +47,15 @@ chemicals = {
     "tomato": {
         "conventional": ["NPK", "Calcium Nitrate", "Micronutrients", "Emamectin Benzoate"],
         "organic": ["Tomato Waste Compost", "Panchagavya", "Neem Oil"]
+    },
+    "maize": {
+        "conventional": ["urea", "DAP"],
+        "organic": ["compost", "vermiwash"]
     }
 }
 
-irrigation_required_crops = ["rice", "wheat", "onion", "potato", "brinjal", "strawberry", "tomato"]
-machinery_required_crops = ["rice", "wheat", "potato", "onion", "brinjal", "strawberry", "tomato"]
+irrigation_required_crops = ["rice", "wheat", "onion", "potato", "brinjal", "strawberry", "tomato", "maize"]
+machinery_required_crops = ["rice", "wheat", "potato", "onion", "brinjal", "strawberry", "tomato", "maize"]
 
 @app.route('/')
 def form():
