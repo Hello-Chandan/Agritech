@@ -73,12 +73,6 @@
     <div class="container">
         <h2>Farm Estimation Results</h2>
 
-        {% if budget_warning %}
-        <div class="warning-box">
-            {{ budget_warning }}
-        </div>
-        {% endif %}
-
         <div class="result-section">
             <h3>Farmer Information</h3>
             <div class="result-item"><span class="label">Name:</span> {{ data.name }}</div>
@@ -117,14 +111,23 @@
             <div class="result-item"><span class="label">Labor Cost:</span> {{ data.labor_cost }}</div>
             <div class="result-item"><span class="label">Chemical Cost:</span> {{ data.chemical_cost }}</div>
             <div class="result-item"><span class="label">Organic Cost:</span> {{ data.additional_cost }}</div>
+            <div class="result-item"><span class="label">Irrigation Cost:</span> {{ data.irrigation_cost }}</div>
+            <div class="result-item"><span class="label">Transport Cost:</span> {{ data.transport_cost }}</div>
+            <div class="result-item"><span class="label">Machinery Cost:</span> {{ data.machinery_cost }}</div>
             <div class="result-item"><span class="label">Total Cost:</span> {{ data.total_cost }}</div>
         </div>
 
+        {% if budget_warning %}
+        <div class="warning-box" style="border-left-color: red; font-weight: bold;">
+            {{ budget_warning }}
+        </div>
+        {% endif %}
+
         <div class="result-section highlight">
-    <div class="result-item"><span class="label">Profit / Loss:</span> {{ data.profit }}</div>
-    <div class="result-item"><span class="label">ROI (Return on Investment):</span> {{ data.roi_percentage }} ({{ data.roi_in_rupees }})</div>
-    <div class="result-item"><span class="label">Profit Margin:</span> {{ data.profit_margin }}</div>
-</div>
+            <div class="result-item"><span class="label">Profit / Loss:</span> {{ data.profit }}</div>
+            <div class="result-item"><span class="label">ROI (Return on Investment):</span> {{ data.roi_percentage }} ({{ data.roi_in_rupees }})</div>
+            <div class="result-item"><span class="label">Profit Margin:</span> {{ data.profit_margin }}</div>
+        </div>
 
         <div style="text-align:center;">
             <a href="/" class="back-btn">← Back to Form</a>
